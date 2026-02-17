@@ -1,0 +1,17 @@
+{
+  "name": "ai-karakter-olusturucu",
+  "version": "1.0.0",
+  "description": "JCI Bahçeşehir - LÖSEV AI Karakter Oluşturucu",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"backend,frontend\" -c \"yellow,cyan\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8000",
+    "install:all": "cd frontend && npm install",
+    "setup": "npm run setup:backend && npm run install:all",
+    "setup:backend": "cd backend && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
