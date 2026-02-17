@@ -1,0 +1,100 @@
+---
+description: Gemini AI entegrasyon kuralları ve best practices
+globs: backend/**/*ai*.py, backend/**/*gemini*.py, backend/**/services/*.py
+alwaysApply: false
+---
+
+# Gemini AI Entegrasyon Kuralları
+
+## SDK Kurulumu
+
+```bash
+pip install google-generativeai pillow
+```
+
+## Temel Yapılandırma
+
+```python
+import google.generativeai as genai
+from PIL import Image
+import io
+import os
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+# Görsel işleme için model
+model = genai.GenerativeModel('gemini-pro-vision')
+```
+
+## Görsel İşleme Servisi
+
+```python
+async def process_with_ai(image_bytes: bytes) -> str:
+    """Kullanıcı görselini AI karakteriyle birleştir."""
+    
+    # Bytes'ı PIL Image'a çevir
+    image = Image.open(io.BytesIO(image_bytes))
+    
+    # Prompt hazırla
+    prompt = """
+    Bu fotoğraftaki kişiyi sosyal sorumluluk projemizin 
+    maskot karakteriyle yan yana, sıcak ve samimi bir 
+    ortamda göster. Arka plan yumuşak ve pastel tonlarda olsun.
+    """
+    
+    try:
+        response = await model.generate_content_async([prompt, image])
+        return response.text
+    except Exception as e:
+        raise AIServiceError(f"Görsel oluşturulamadı: {str(e)}")
+```
+
+## Error Handling
+
+```python
+class AIServiceError(Exception):
+    """AI servisi hataları için özel exception."""
+    pass
+
+async def safe_generate(image_bytes: bytes) -> str:
+    max_retries = 3
+    
+    for attempt in range(max_retries):
+        try:
+            return await process_with_ai(image_bytes)
+        except genai.types.BlockedPromptException:
+            raise AIServiceError("Görsel uygun değil")
+        except genai.types.StopCandidateException:
+            if attempt < max_retries - 1:
+                continue
+            raise AIServiceError("AI yanıt üretemedi")
+    
+    raise AIServiceError("Maksimum deneme sayısı aşıldı")
+```
+
+## Rate Limiting
+
+```python
+import asyncio
+from datetime import datetime, timedelta
+
+last_request_time = None
+MIN_REQUEST_INTERVAL = timedelta(seconds=1)
+
+async def rate_limited_generate(image_bytes: bytes) -> str:
+    global last_request_time
+    
+    if last_request_time:
+        elapsed = datetime.now() - last_request_time
+        if elapsed < MIN_REQUEST_INTERVAL:
+            await asyncio.sleep((MIN_REQUEST_INTERVAL - elapsed).total_seconds())
+    
+    last_request_time = datetime.now()
+    return await safe_generate(image_bytes)
+```
+
+## Güvenlik Kuralları
+- API key'i **asla** koda hardcode etme
+- `.env` dosyasını `.gitignore`'a ekle
+- Kullanıcı görsellerini kalıcı olarak saklama
+- Input validation yap (dosya boyutu, format)

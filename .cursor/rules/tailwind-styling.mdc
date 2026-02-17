@@ -1,0 +1,84 @@
+---
+description: Tailwind CSS styling ve tasarım kuralları - Sıcak tema renk paleti
+globs: frontend/**/*.{tsx,css}
+alwaysApply: false
+---
+
+# Tailwind Styling Kuralları
+
+## Tailwind Config - Custom Renkler
+`tailwind.config.ts` dosyasına ekle:
+
+```ts
+theme: {
+  extend: {
+    colors: {
+      cream: '#FFFBF5',      // Arka plan
+      coral: '#FF6B6B',      // Ana aksiyon butonu
+      amber: '#FFD93D',      // Vurgu
+      peach: '#FFEFD5',      // Upload alanı
+      charcoal: '#2D3436',   // Metinler
+    },
+  },
+},
+```
+
+## Button Stilleri
+
+```tsx
+// Ana buton (Oluştur)
+<button className="
+  bg-coral text-white px-8 py-3 rounded-xl
+  font-semibold shadow-lg
+  hover:bg-coral/90 hover:shadow-xl
+  disabled:opacity-50 disabled:cursor-not-allowed
+  transition-all duration-200
+">
+  Oluştur
+</button>
+
+// Outline buton (Yeni Bir Tane Oluştur)
+<button className="
+  border-2 border-coral text-coral px-6 py-2 rounded-xl
+  hover:bg-coral/10 transition-colors
+">
+  Yeni Bir Tane Oluştur
+</button>
+```
+
+## Upload Alanı Stili
+
+```tsx
+<div className={`
+  border-2 border-dashed rounded-2xl p-12
+  bg-peach/50 text-charcoal
+  ${isDragging ? 'border-coral bg-coral/10' : 'border-charcoal/30'}
+  hover:border-coral hover:bg-coral/5
+  transition-all duration-200 cursor-pointer
+`}>
+  <p>Dosyanı buraya sürükle veya tıkla</p>
+</div>
+```
+
+## Responsive Design
+- Mobile-first yaklaşım kullan
+- Breakpoint'ler: `sm:`, `md:`, `lg:`
+- Max-width container: `max-w-2xl mx-auto`
+
+## Animasyonlar
+
+```tsx
+// Loading spinner
+<div className="animate-spin h-8 w-8 border-4 border-coral border-t-transparent rounded-full" />
+
+// Fade-in animasyonu
+<div className="animate-fade-in">
+  {/* İçerik */}
+</div>
+```
+
+## Genel Kurallar
+- Arka plan: `bg-cream`
+- Tüm metinler: `text-charcoal`
+- Yumuşak köşeler: `rounded-xl` veya `rounded-2xl`
+- Gölgeler: `shadow-lg` hover'da `shadow-xl`

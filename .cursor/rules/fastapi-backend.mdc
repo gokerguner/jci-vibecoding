@@ -1,0 +1,107 @@
+---
+description: FastAPI ve Python backend geliştirme kuralları
+globs: backend/**/*.py
+alwaysApply: false
+---
+
+# FastAPI Backend Kuralları
+
+## Proje Yapısı
+
+```
+backend/
+├── app/
+│   ├── main.py           # FastAPI app ve CORS
+│   ├── routers/
+│   │   └── generate.py   # /generate endpoint
+│   └── services/
+│       └── ai_service.py # Gemini entegrasyonu
+├── requirements.txt
+└── .env                  # API keys (git'e ekleme!)
+```
+
+## Main App Yapısı
+
+```python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="AI Karakter Oluşturucu API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_methods=["POST"],
+    allow_headers=["*"],
+)
+```
+
+## Endpoint Tanımı
+
+```python
+from fastapi import APIRouter, UploadFile, HTTPException
+from pydantic import BaseModel
+
+router = APIRouter()
+
+class GenerateResponse(BaseModel):
+    image_base64: str
+    message: str
+
+@router.post("/generate", response_model=GenerateResponse)
+async def generate_image(image: UploadFile):
+    # Dosya tipi kontrolü
+    if image.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(400, "Sadece JPG ve PNG desteklenir")
+    
+    # Görseli işle
+    contents = await image.read()
+    result = await process_with_ai(contents)
+    
+    return GenerateResponse(
+        image_base64=result,
+        message="Görsel başarıyla oluşturuldu"
+    )
+```
+
+## Error Handling
+
+```python
+from fastapi import HTTPException
+
+# ❌ YANLIŞ
+return {"error": "Bir hata oluştu"}
+
+# ✅ DOĞRU
+raise HTTPException(
+    status_code=500,
+    detail="AI servisi yanıt vermedi. Lütfen tekrar deneyin."
+)
+```
+
+## Base64 Encode/Decode
+
+```python
+import base64
+
+# Encode (AI'dan gelen görseli frontend'e gönder)
+image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+
+# Decode (Frontend'den gelen görseli AI'a gönder)
+image_bytes = base64.b64decode(image_base64)
+```
+
+## Environment Variables
+`.env` dosyası:
+```
+GEMINI_API_KEY=your_api_key_here
+```
+
+Kullanım:
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")
+```

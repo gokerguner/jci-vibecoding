@@ -1,0 +1,56 @@
+---
+description: Sosyal Sorumluluk AI Karakter Oluşturucu - Genel proje standartları ve mimarisi
+alwaysApply: true
+---
+
+# Proje Genel Bakış
+
+## Mimari
+- **Frontend:** `frontend/` - Next.js + React + Tailwind CSS
+- **Backend:** `backend/` - FastAPI (Python)
+- **Stateless mimari** - Veritabanı kullanılmaz
+
+## Klasör Yapısı
+
+```
+frontend/
+├── app/              # Next.js App Router
+├── components/       # React componentleri
+├── lib/              # Utility fonksiyonlar
+└── public/           # Statik dosyalar
+
+backend/
+├── app/
+│   ├── main.py       # FastAPI entry point
+│   ├── routers/      # API endpoint'leri
+│   └── services/     # AI ve görsel işleme
+└── requirements.txt
+```
+
+## Naming Conventions
+- **Dosyalar:** kebab-case (`image-upload.tsx`)
+- **Componentler:** PascalCase (`ImageUpload`)
+- **Fonksiyonlar:** camelCase (`handleImageUpload`)
+- **Python:** snake_case (`process_image`)
+
+## Renk Paleti (Tailwind config'e eklenecek)
+| Kullanım | Renk | Hex |
+|----------|------|-----|
+| Arka Plan | Krem Beyazı | `#FFFBF5` |
+| Ana Buton | Canlı Mercan | `#FF6B6B` |
+| Vurgu | Sıcak Kehribar | `#FFD93D` |
+| Upload Alanı | Açık Şeftali | `#FFEFD5` |
+| Metin | Kömür Grisi | `#2D3436` |
+
+## Git Commit Formatı
+```
+feat: Yeni özellik eklendi
+fix: Hata düzeltildi
+style: Stil değişikliği
+refactor: Kod iyileştirmesi
+```
+
+## Türkçe UI Metinleri
+- Tüm kullanıcı arayüzü metinleri Türkçe olmalı
+- Buton: "Oluştur", "İndir", "Yeni Bir Tane Oluştur"
+- Başlık: "İyiliğin Bir Parçası Ol"

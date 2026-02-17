@@ -1,0 +1,76 @@
+---
+description: Next.js ve React frontend geliştirme standartları
+globs: frontend/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Next.js Frontend Kuralları
+
+## Component Yapısı
+Functional component ve TypeScript kullan:
+
+```tsx
+// ✅ DOĞRU
+interface ImageUploadProps {
+  onUpload: (file: File) => void;
+  disabled?: boolean;
+}
+
+export function ImageUpload({ onUpload, disabled }: ImageUploadProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  // ...
+}
+```
+
+## File Upload Handling
+Drag-drop ve click destekli upload:
+
+```tsx
+const handleDrop = (e: React.DragEvent) => {
+  e.preventDefault();
+  setIsDragging(false);
+  const file = e.dataTransfer.files[0];
+  if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+    onUpload(file);
+  }
+};
+```
+
+## API Çağrıları
+Backend'e görsel gönderme:
+
+```tsx
+const generateImage = async (file: File) => {
+  setLoading(true);
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const res = await fetch(`${API_URL}/generate`, {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!res.ok) throw new Error('İşlem başarısız');
+    return await res.json();
+  } catch (error) {
+    setError('Görsel oluşturulamadı. Lütfen tekrar deneyin.');
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+## State Yönetimi
+- `useState` - Basit state'ler için
+- `useReducer` - Karmaşık form state'leri için
+- Loading, error ve success state'lerini her zaman yönet
+
+## Dosya Organizasyonu
+```
+components/
+├── ImageUpload.tsx     # Upload alanı
+├── GenerateButton.tsx  # Oluştur butonu
+├── ResultDisplay.tsx   # Sonuç gösterimi
+└── ui/                 # Reusable UI componentleri
+```
